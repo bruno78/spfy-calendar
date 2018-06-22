@@ -1,4 +1,4 @@
-package com.brunogtavares.spfycalendar;
+package com.brunogtavares.mycalendar;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -7,31 +7,22 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.text.Layout;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.TextView;
+
+import com.brunogtavares.mycalendar.R;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 public class CalendarView extends LinearLayout {
 
@@ -231,7 +222,7 @@ public class CalendarView extends LinearLayout {
 
             // if this day has an event, specify event image
             // view.setBackgroundResource(0);
-            if (!eventDays.isEmpty())
+            if (eventDays != null || !eventDays.isEmpty())
             {
                 for (Date eventDate : eventDays)
                 {

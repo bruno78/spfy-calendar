@@ -1,4 +1,4 @@
-package com.brunogtavares.spfycalendar;
+package com.brunogtavares.mycalendar;
 
 import java.util.Date;
 

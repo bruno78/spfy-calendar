@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">SpfyCalendar</string>
+    <string name="app_name">MyCalendar</string>
+    <string name="category_calendar">Calendar</string>
+    <string name="category_events">Events</string>
 </resources>

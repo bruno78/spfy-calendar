@@ -1,4 +1,4 @@
-package com.brunogtavares.spfycalendar;
+package com.brunogtavares.mycalendar;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
