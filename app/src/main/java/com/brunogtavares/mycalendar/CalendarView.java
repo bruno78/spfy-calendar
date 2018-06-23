@@ -222,7 +222,7 @@ public class CalendarView extends LinearLayout {
 
             // if this day has an event, specify event image
             // view.setBackgroundResource(0);
-            if (eventDays != null || !eventDays.isEmpty())
+            if (eventDays != null && !eventDays.isEmpty())
             {
                 for (Date eventDate : eventDays)
                 {
