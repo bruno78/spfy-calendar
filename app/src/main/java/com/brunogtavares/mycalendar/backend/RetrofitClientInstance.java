@@ -9,5 +9,8 @@ import retrofit2.Retrofit;
 public class RetrofitClientInstance {
 
     private static Retrofit retrofit;
-    private static final BASE_URL = ""
+    private static final String BASE_URL =
+            "https://github.com/bruno78/spfy-calendar/blob/master/app/src/main/java/com/brunogtavares/mycalendar/backend/db.json";
+
+
 }
