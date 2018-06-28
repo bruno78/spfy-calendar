@@ -1,31 +1,32 @@
-[
-  {
-    "id": 1,
-    "event": "Doctor's appointment",
-    "starTime": "Fri Jun 8 13:00:00 EDT 2018",
-    "endTime": "Fri Jun 8 13:30:00 EDT 2018",
-    "userId": 1
-  },
-  {
-    "id": 2,
-    "event": "Meet Goria",
-    "starTime": "Wed Jun 13 14:00:00 EDT 2018",
-    "endTime": "Wed Jun 13 15:30:00 EDT 2018",
-    "userId": 1
-  },
-  {
-    "id": 3,
-    "event": "Call with Marty",
-    "starTime": "Thu Jun 28 8:00:00 EDT 2018",
-    "endTime": "Thu Jun 28 8:30:00 EDT 2018",
-    "userId": 1
-  },
-  {
-    "id": 4,
-    "event": "Music classes",
-    "starTime": "Mon Jun 25 5:00:00 EDT 2018",
-    "endTime": "Mon Jun 25 5:30:00 EDT 2018",
-    "userId": 1
-  }
-
-]
+{
+  "events": [
+    {
+      "id": 1,
+      "event": "Doctor's appointment",
+      "starTime": "Fri Jun 8 13:00:00 EDT 2018",
+      "endTime": "Fri Jun 8 13:30:00 EDT 2018",
+      "userId": 1
+    },
+    {
+      "id": 2,
+      "event": "Meet Goria",
+      "starTime": "Wed Jun 13 14:00:00 EDT 2018",
+      "endTime": "Wed Jun 13 15:30:00 EDT 2018",
+      "userId": 1
+    },
+    {
+      "id": 3,
+      "event": "Call with Marty",
+      "starTime": "Thu Jun 28 8:00:00 EDT 2018",
+      "endTime": "Thu Jun 28 8:30:00 EDT 2018",
+      "userId": 1
+    },
+    {
+      "id": 4,
+      "event": "Music classes",
+      "starTime": "Mon Jun 25 5:00:00 EDT 2018",
+      "endTime": "Mon Jun 25 5:30:00 EDT 2018",
+      "userId": 1
+    }
+  ]
+}
