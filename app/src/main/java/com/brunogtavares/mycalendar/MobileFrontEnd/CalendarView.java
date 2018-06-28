@@ -1,4 +1,4 @@
-package com.brunogtavares.mycalendar;
+package com.brunogtavares.mycalendar.MobileFrontEnd;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;

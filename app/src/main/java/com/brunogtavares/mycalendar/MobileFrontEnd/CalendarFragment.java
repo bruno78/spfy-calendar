@@ -1,4 +1,4 @@
-package com.brunogtavares.mycalendar;
+package com.brunogtavares.mycalendar.MobileFrontEnd;
 
 import android.content.Intent;
 import android.os.Bundle;

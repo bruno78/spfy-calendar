@@ -1,4 +1,4 @@
-package com.brunogtavares.mycalendar;
+package com.brunogtavares.mycalendar.backend;
 
 import com.google.gson.annotations.SerializedName;
 

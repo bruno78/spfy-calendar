@@ -1,4 +1,4 @@
-package com.brunogtavares.mycalendar;
+package com.brunogtavares.mycalendar.MobileFrontEnd;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;

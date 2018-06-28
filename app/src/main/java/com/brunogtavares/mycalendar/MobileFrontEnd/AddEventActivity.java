@@ -1,4 +1,4 @@
-package com.brunogtavares.mycalendar;
+package com.brunogtavares.mycalendar.MobileFrontEnd;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -6,9 +6,7 @@ import android.app.TimePickerDialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -16,16 +14,15 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
+
+import com.brunogtavares.mycalendar.R;
+import com.brunogtavares.mycalendar.backend.Event;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-
-import butterknife.BindView;
-import butterknife.OnClick;
 
 /**
  * Created by brunogtavares on 6/27/18.
@@ -42,8 +39,7 @@ public class AddEventActivity extends AppCompatActivity {
 
     static final int START_DATE_DIALOG_ID = 0;
     static final int START_TIME_DIALOG_ID = 1;
-    static final int END_DATE_DIALOG_ID = 2;
-    static final int END_TIME_DIALOG_ID = 3;
+    static final int END_TIME_DIALOG_ID = 2;
 
     private EditText mEvent;
     private TextView mStartDate;
@@ -94,13 +90,6 @@ public class AddEventActivity extends AppCompatActivity {
             }
         });
 
-        mEndDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showDateDialog(mEndDate, mCalendarEndDate, END_DATE_DIALOG_ID);
-            }
-        });
-
         mEndTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -110,7 +99,7 @@ public class AddEventActivity extends AppCompatActivity {
 
         updateDateDisplay(mStartDate, mCalendarStartDate);
         updateTimeDisplay(mStartTime, mCalendarStartTime);
-        updateDateDisplay(mEndDate, mCalendarEndDate);
+        updateDateDisplay(mEndDate, mCalendarStartDate);
         updateTimeDisplay(mEndTime, mCalendarEndTime);
 
         // TODO: Implement SAVE BUTTON,
@@ -185,17 +174,6 @@ public class AddEventActivity extends AppCompatActivity {
                 return new TimePickerDialog(this, timeSetListener,
                         mActiveDate.get(Calendar.HOUR_OF_DAY), mActiveDate.get(Calendar.MINUTE), true);
 
-            case END_DATE_DIALOG_ID:
-                endDateDialog = new DatePickerDialog(
-                        AddEventActivity.this,
-                        android.R.style.Theme_Holo_Light_Dialog_MinWidth,
-                        dateSetListener,
-                        mActiveDate.get(Calendar.YEAR),
-                        mActiveDate.get(Calendar.MONTH), mActiveDate.get(Calendar.DAY_OF_MONTH));
-
-                endDateDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                return endDateDialog;
-
             case END_TIME_DIALOG_ID:
                 return new TimePickerDialog(this, timeSetListener,
                         mActiveDate.get(Calendar.HOUR_OF_DAY), mActiveDate.get(Calendar.MINUTE), true);
@@ -214,10 +192,6 @@ public class AddEventActivity extends AppCompatActivity {
             case START_TIME_DIALOG_ID:
                 ((TimePickerDialog) dialog).updateTime( mActiveDate.get(Calendar.HOUR_OF_DAY),
                         mActiveDate.get(Calendar.MINUTE));
-                break;
-            case END_DATE_DIALOG_ID:
-                ((DatePickerDialog) dialog).updateDate(mActiveDate.get(Calendar.YEAR),
-                        mActiveDate.get(Calendar.MONTH), mActiveDate.get(Calendar.DAY_OF_MONTH));
                 break;
             case END_TIME_DIALOG_ID:
                 ((TimePickerDialog) dialog).updateTime( mActiveDate.get(Calendar.HOUR_OF_DAY),
@@ -262,7 +236,7 @@ public class AddEventActivity extends AppCompatActivity {
         String format = DATE_FORMAT + " " + TIME_FORMAT;
 
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat(format);
+            SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.US);
             Date date = sdf.parse(dateTime);
             return date;
         } catch (ParseException e) {

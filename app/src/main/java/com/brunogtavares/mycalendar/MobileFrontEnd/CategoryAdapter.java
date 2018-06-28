@@ -1,4 +1,4 @@
-package com.brunogtavares.mycalendar;
+package com.brunogtavares.mycalendar.MobileFrontEnd;
 
 import android.content.Context;
 import android.support.v4.app.Fragment;
