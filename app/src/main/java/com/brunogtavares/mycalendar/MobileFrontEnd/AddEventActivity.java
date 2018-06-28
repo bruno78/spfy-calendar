@@ -75,10 +75,14 @@ public class AddEventActivity extends AppCompatActivity {
     private TextView mActiveDateDisplay;
     private Calendar mActiveDate;
 
+    private EventDataService mAPIService;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_event);
+
+        mAPIService = RetrofitClientInstance.getRetrofitInstance().create(EventDataService.class);
 
         mEvent = (EditText) findViewById(R.id.et_event_description);
         mStartDate = (TextView) findViewById(R.id.tv_start_date);
@@ -154,9 +158,35 @@ public class AddEventActivity extends AppCompatActivity {
                         + startTime + "\n"
                         + endtime + "\n");
 
+                if(mEvent.getText().toString().isEmpty()) {
+                    Toast.makeText(AddEventActivity.this, "Event field cannot be blank", Toast.LENGTH_SHORT);
+
+                }
+                else {
+                    sendPost(event);
+                }
+
+
             }
         });
 
+    }
+
+    private void sendPost(Event event) {
+        Call<Event> call = mAPIService.addEvent(event);
+        call.enqueue(new Callback<Event>() {
+            @Override
+            public void onResponse(Call<Event> call, Response<Event> response) {
+                if(response.isSuccessful()) {
+                    Log.i(LOG_TAG, "post submitted to API." + response.body().toString());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Event> call, Throwable t) {
+                Log.e(LOG_TAG, "Unable to submit post to API.");
+            }
+        });
     }
 
     private DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
@@ -183,7 +213,6 @@ public class AddEventActivity extends AppCompatActivity {
     @Override
     protected Dialog onCreateDialog(int id) {
         DatePickerDialog startDatedialog;
-        DatePickerDialog endDateDialog;
 
         switch (id) {
             case START_DATE_DIALOG_ID:

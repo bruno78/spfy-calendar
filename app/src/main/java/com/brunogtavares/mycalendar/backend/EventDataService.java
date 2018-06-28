@@ -24,8 +24,8 @@ public interface EventDataService {
     Call<Event> addEvent(@Body Event event);
 
     @PUT("/events/{id}")
-    Call<ResponseBody> updateEvent(@Path("id") String id, @Body Event event);
+    Call<ResponseBody> updateEvent(@Path("id") int id, @Body Event event);
 
     @DELETE("/events/{id}")
-    Call<ResponseBody>  deleteEvent(@Path("id") String id);
+    Call<ResponseBody>  deleteEvent(@Path("id") int id);
 }

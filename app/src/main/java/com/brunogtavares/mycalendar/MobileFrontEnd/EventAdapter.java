@@ -97,4 +97,8 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         return mEvents == null ? 0 : mEvents.size();
     }
 
+    public List<Event> getEvents() {
+        return mEvents;
+    }
+
 }
