@@ -1,5 +1,6 @@
 package com.brunogtavares.mycalendar.MobileFrontEnd;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,6 +16,7 @@ import com.brunogtavares.mycalendar.backend.Event;
 import com.brunogtavares.mycalendar.backend.EventDataService;
 import com.brunogtavares.mycalendar.backend.RetrofitClientInstance;
 
+import java.io.Serializable;
 import java.util.List;
 
 import retrofit2.Call;
@@ -25,7 +27,7 @@ import retrofit2.Response;
  * Created by brunogtavares on 6/22/18.
  */
 
-public class EventListFragment extends Fragment {
+public class EventListFragment extends Fragment implements EventAdapter.EventAdapterOnClickHandler{
 
     private EventAdapter mAdapter;
     private RecyclerView mRecyclerView;
@@ -49,8 +51,8 @@ public class EventListFragment extends Fragment {
                 List<Event> eventList = response.body();
 
                 mRecyclerView = getActivity().findViewById(R.id.rv_event_list);
-                mAdapter = new EventAdapter(getContext(), eventList, this);
-                RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(MainActivity.this);
+                mAdapter = new EventAdapter(getContext(), eventList, EventListFragment.this);
+                RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
                 mRecyclerView.setLayoutManager(layoutManager);
                 mRecyclerView.setAdapter(mAdapter);
             }
@@ -62,6 +64,14 @@ public class EventListFragment extends Fragment {
         });
 
         return rootView;
+    }
+
+    @Override
+    public void onClick(Event event) {
+        Intent intent = new Intent(getContext(), AddEventActivity.class);
+        intent.putExtra(AddEventActivity.EXTRA_TASK_ID, (Serializable) event);
+        startActivity(intent);
+
     }
 }
 

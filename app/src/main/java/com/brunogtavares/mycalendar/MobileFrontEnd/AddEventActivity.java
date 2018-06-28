@@ -3,10 +3,16 @@ package com.brunogtavares.mycalendar.MobileFrontEnd;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -14,15 +20,23 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.brunogtavares.mycalendar.R;
 import com.brunogtavares.mycalendar.backend.Event;
+import com.brunogtavares.mycalendar.backend.EventDataService;
+import com.brunogtavares.mycalendar.backend.RetrofitClientInstance;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by brunogtavares on 6/27/18.
@@ -31,7 +45,11 @@ import java.util.Locale;
 public class AddEventActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = AddEventActivity.class.getSimpleName();
+    public static final String EXTRA_TASK_ID = "EVENT";
     private final int USERID = 1;
+
+    private static final int DEFAULT_TASK_ID = -1;
+    private int mEventId = DEFAULT_TASK_ID;
 
     // default date format
     private static final String DATE_FORMAT = "MMM dd, yyyy";
@@ -101,6 +119,15 @@ public class AddEventActivity extends AppCompatActivity {
         updateTimeDisplay(mStartTime, mCalendarStartTime);
         updateDateDisplay(mEndDate, mCalendarStartDate);
         updateTimeDisplay(mEndTime, mCalendarEndTime);
+
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra(EXTRA_TASK_ID)) {
+            mSaveButton.setText(R.string.update_button);
+            if (mEventId == DEFAULT_TASK_ID) {
+                // populate the UI
+                mEventId = intent.getIntExtra(EXTRA_TASK_ID, DEFAULT_TASK_ID);
+            }
+        }
 
         // TODO: Implement SAVE BUTTON,
         // Check for

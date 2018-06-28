@@ -21,18 +21,19 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
 
     private static final String LOG_TAG = EventAdapter.class.getSimpleName();
 
-    final private ItemClickListener mOnClickListener;
+    final private EventAdapterOnClickHandler mClickHandler;
     private final List<Event> mEvents;
+    private Context mContext;
 
-    public interface ItemClickListener {
-        void onItemClickListener(int clickedItemPosition);
+    public interface EventAdapterOnClickHandler {
+        void onClick(Event event);
     }
 
 
-    public EventAdapter(Context context, List<Event> events, ItemClickListener listener) {
-
+    public EventAdapter(Context context, List<Event> events, EventAdapterOnClickHandler listener) {
+        this.mContext = context;
         this.mEvents = events;
-        mOnClickListener = listener;
+        mClickHandler = listener;
     }
 
 
@@ -56,8 +57,9 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
 
         @Override
         public void onClick(View view) {
-            int clickedPosition = getAdapterPosition();
-            mOnClickListener.onItemClickListener(clickedPosition);
+            int position = getAdapterPosition();
+            mClickHandler.onClick(mEvents.get(position));
+
         }
 
     }
