@@ -1,6 +1,8 @@
 package com.brunogtavares.mycalendar;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,13 +22,14 @@ import java.util.HashSet;
 
 public class CalendarFragment extends Fragment {
 
-
-    public CalendarFragment() {}
+    private FloatingActionButton mFab;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_calendar, container, false);
+
+        mFab = rootView.findViewById(R.id.fab_add_calendar);
 
         HashSet<Date> events = new HashSet<>();
         events.add(new Date());
@@ -43,6 +46,14 @@ public class CalendarFragment extends Fragment {
                 // show returned day
                 DateFormat df = SimpleDateFormat.getDateInstance();
                 Toast.makeText(getActivity(), df.format(date), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        mFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent( getContext(), AddEventActivity.class);
+                startActivity(intent);
             }
         });
 
