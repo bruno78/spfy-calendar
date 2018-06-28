@@ -2,7 +2,7 @@
     <string name="app_name">MyCalendar</string>
     <string name="category_calendar">Calendar</string>
     <string name="category_events">Events</string>
-    <string name="add_button">Add Button</string>
+    <string name="add_button">Add Event</string>
     <string name="starts_at">Starts:</string>
     <string name="add_event">Event</string>
     <string name="date">Date:</string>

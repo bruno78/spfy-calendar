@@ -1,5 +1,7 @@
 package com.brunogtavares.mycalendar;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.Date;
 
 /**
@@ -7,11 +9,15 @@ import java.util.Date;
  */
 
 public class Event {
-
+    @SerializedName("id")
     private int id;
+    @SerializedName("event")
     private String event;
+    @SerializedName("startTime")
     private Date startTime;
+    @SerializedName("endTime")
     private Date endtime;
+    @SerializedName("userId")
     private int userId;
 
     public Event(String event, Date startTime, Date endTime, int userId ) {
