@@ -80,14 +80,17 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
 
         EventViewHolder view = holder;
 
-        String week = new SimpleDateFormat("EEE").format(event.getStartTime());
+        String[] date = event.getStartTime().split(" ");
+        String[] endDate = event.getEndtime().split(" ");
+
+        String week = date[0];
         view.mEventWeek.setText(week);
-        String day = new SimpleDateFormat("yyyy").format(event.getStartTime());
+        String day = date[2];
         view.mEventDay.setText(day);
         view.mEventDescription.setText(event.getEvent());
-        String startTime = new SimpleDateFormat("H:mm a").format(event.getStartTime());
+        String startTime = date[3];
         view.mEventStartTime.setText(startTime);
-        String endTime = new SimpleDateFormat("H:mm a").format(event.getEndtime());
+        String endTime = endDate[3];
         view.mEventEndTime.setText(endTime);
 
     }

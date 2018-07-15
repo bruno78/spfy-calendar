@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.brunogtavares.mycalendar.R;
 import com.brunogtavares.mycalendar.backend.Event;
+import com.brunogtavares.mycalendar.backend.EventDBUtils;
 import com.brunogtavares.mycalendar.backend.EventDataService;
 import com.brunogtavares.mycalendar.backend.RetrofitClientInstance;
 
@@ -69,6 +70,13 @@ public class EventListFragment extends Fragment implements EventAdapter.EventAda
             @Override
             public void onFailure(Call<List<Event>> call, Throwable t) {
                 Toast.makeText(getContext(), "Something went wrong...Please try later!", Toast.LENGTH_SHORT).show();
+                List<Event> eventList = EventDBUtils.getEventsFromJSON(getContext());
+                Log.i(LOG_TAG, "List size: " + eventList);
+                mRecyclerView = getActivity().findViewById(R.id.rv_event_list);
+                mAdapter = new EventAdapter(getContext(), eventList, EventListFragment.this);
+                RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+                mRecyclerView.setLayoutManager(layoutManager);
+                mRecyclerView.setAdapter(mAdapter);
             }
         });
 

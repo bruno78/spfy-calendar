@@ -2,7 +2,6 @@ package com.brunogtavares.mycalendar.backend;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.Date;
 
 /**
  * Created by brunogtavares on 6/27/18.
@@ -14,13 +13,20 @@ public class Event {
     @SerializedName("event")
     private String event;
     @SerializedName("startTime")
-    private Date startTime;
+    private String startTime;
     @SerializedName("endTime")
-    private Date endtime;
+    private String endtime;
     @SerializedName("userId")
     private int userId;
 
-    public Event(String event, Date startTime, Date endTime, int userId ) {
+    public Event(String event, String startTime, String endTime, int userId ) {
+        this.event = event;
+        this.startTime = startTime;
+        this.endtime = endTime;
+        this.userId = userId;
+    }
+    public Event(int id, String event, String startTime, String endTime, int userId ) {
+        this.id = id;
         this.event = event;
         this.startTime = startTime;
         this.endtime = endTime;
@@ -37,19 +43,19 @@ public class Event {
         this.event = event;
     }
 
-    public Date getStartTime() {
+    public String getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Date startTime) {
+    public void setStartTime(String startTime) {
         this.startTime = startTime;
     }
 
-    public Date getEndtime() {
+    public String getEndtime() {
         return endtime;
     }
 
-    public void setEndtime(Date endtime) {
+    public void setEndtime(String endtime) {
         this.endtime = endtime;
     }
 

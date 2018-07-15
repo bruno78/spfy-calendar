@@ -146,9 +146,11 @@ public class AddEventActivity extends AppCompatActivity {
                 String startDate = mStartDate.getText().toString();
                 String startTime = mStartTime.getText().toString();
                 String endDate = mStartDate.getText().toString();
-                String endtime = mEndTime.getText().toString();
-                Date startEvent = parseStringToDate(startDate, startTime);
-                Date endEvent = parseStringToDate(endDate, endtime);
+                String endTime = mEndTime.getText().toString();
+                String startEvent = startDate + " " + startTime;
+                String endEvent = endDate + " " + endTime;
+                // Date startEvent = parseStringToDate(startDate, startTime);
+                // Date endEvent = parseStringToDate(endDate, endtime);
 
                 event = new Event(eventDescription, startEvent, endEvent, USERID);
 
@@ -156,7 +158,7 @@ public class AddEventActivity extends AppCompatActivity {
                         + startEvent + "\n"
                         + endDate + "\n"
                         + startTime + "\n"
-                        + endtime + "\n");
+                        + endTime + "\n");
 
                 if(mEvent.getText().toString().isEmpty()) {
                     Toast.makeText(AddEventActivity.this, "Event field cannot be blank", Toast.LENGTH_SHORT);
