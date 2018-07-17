@@ -12,17 +12,15 @@ import com.brunogtavares.mycalendar.backend.RetrofitClientInstance;
 
 public class AddEventViewModelFactory extends ViewModelProvider.NewInstanceFactory {
 
-    private final EventsApiService mApiService;
     private final long mEventId;
 
-    public AddEventViewModelFactory(EventsApiService apiService, long eventId) {
-        mApiService = apiService;
+    public AddEventViewModelFactory(long eventId) {
         mEventId = eventId;
     }
 
     @Override
     public <T extends ViewModel> T create(Class<T> modelClass) {
-        return (T) new AddEventViewModel(mApiService, mEventId);
+        return (T) new AddEventViewModel(mEventId);
     }
 
 

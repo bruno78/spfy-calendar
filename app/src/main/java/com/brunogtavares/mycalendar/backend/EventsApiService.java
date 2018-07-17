@@ -22,10 +22,10 @@ import retrofit2.http.Path;
 public interface EventsApiService {
 
     @GET("/events")
-    Call<LiveData<List<Event>>> getAllEvents();
+    Call<List<Event>> getAllEvents();
 
     @GET("/events/{id}")
-    Call<LiveData<Event>> getEventById(@Path("id") long id);
+    Call<Event> getEventById(@Path("id") long id);
 
     @POST("/events")
     Call<ResponseBody> addEvent(@Body Event event);

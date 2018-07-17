@@ -1,7 +1,10 @@
 package com.brunogtavares.mycalendar.MobileFrontEnd.EventList;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,8 +19,9 @@ import android.widget.Toast;
 
 import com.brunogtavares.mycalendar.MobileFrontEnd.AddEvent.AddEventActivity;
 import com.brunogtavares.mycalendar.R;
+import com.brunogtavares.mycalendar.backend.EventRepository;
+import com.brunogtavares.mycalendar.backend.EventTaskExecutors;
 import com.brunogtavares.mycalendar.backend.models.Event;
-import com.brunogtavares.mycalendar.backend.EventDBUtils;
 import com.brunogtavares.mycalendar.backend.EventsApiService;
 import com.brunogtavares.mycalendar.backend.RetrofitClientInstance;
 
@@ -39,6 +43,10 @@ public class EventListFragment extends Fragment implements EventListAdapter.Even
     private EventListAdapter mAdapter;
     private RecyclerView mRecyclerView;
 
+    private EventRepository mRepo;
+
+    private TextView mEmptyText;
+
     private FloatingActionButton mFab;
     public EventListFragment(){}
 
@@ -56,45 +64,37 @@ public class EventListFragment extends Fragment implements EventListAdapter.Even
 
         mFab = (FloatingActionButton) rootView.findViewById(R.id.fab_add_event_btn);
 
-        final TextView emptyText = rootView.findViewById(R.id.tv_empty_view);
-        emptyText.setText("No events yet!");
+        mEmptyText = rootView.findViewById(R.id.tv_empty_view);
+        mEmptyText.setText("No events yet!");
 
-//        EventListViewModel viewModel = ViewModelProviders.of(this).get(EventListViewModel.class);
-//        viewModel.getEvents().observe(this, new Observer<List<Event>>() {
+        mRepo = EventRepository.getInstance();
+
+//        final EventsApiService service = RetrofitClientInstance.getRetrofitInstance().create(EventsApiService.class);
+//        Call<List<Event>> call = service.getAllEvents();
+//        call.enqueue(new Callback<List<Event>>() {
 //            @Override
-//            public void onChanged(@Nullable List<Event> events) {
-//                List<Event> eventList = events;
-//                eventList.size();
-//                mAdapter.setEvents(events);
+//            public void onResponse(Call<List<Event>> call, Response<List<Event>> response) {
+//                emptyText.setVisibility(View.GONE);
+//
+//                List<Event> eventList = response.body();
+//
+//                mAdapter.setEvents(eventList);
+//                mRecyclerView.setAdapter(mAdapter);
+//            }
+//
+//            @Override
+//            public void onFailure(Call<List<Event>> call, Throwable t) {
+//                Toast.makeText(getContext(), "Something went wrong...Please try later!", Toast.LENGTH_SHORT).show();
+//                List<Event> eventList = EventDBUtils.getEventsFromJSON(getContext());
+//                Log.i(LOG_TAG, "List size: " + eventList);
+////                mRecyclerView = getActivity().findViewById(R.id.rv_event_list);
+////                mAdapter = new EventListAdapter(getContext(), EventListFragment.this);
+////                mAdapter.setEvents(eventList);
+////                RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+////                mRecyclerView.setLayoutManager(layoutManager);
+////                mRecyclerView.setAdapter(mAdapter);
 //            }
 //        });
-
-        final EventsApiService service = RetrofitClientInstance.getRetrofitInstance().create(EventsApiService.class);
-        Call<List<Event>> call = service.getAllEvents();
-        call.enqueue(new Callback<List<Event>>() {
-            @Override
-            public void onResponse(Call<List<Event>> call, Response<List<Event>> response) {
-                emptyText.setVisibility(View.GONE);
-
-                List<Event> eventList = response.body();
-
-                mAdapter.setEvents(eventList);
-                mRecyclerView.setAdapter(mAdapter);
-            }
-
-            @Override
-            public void onFailure(Call<List<Event>> call, Throwable t) {
-                Toast.makeText(getContext(), "Something went wrong...Please try later!", Toast.LENGTH_SHORT).show();
-                List<Event> eventList = EventDBUtils.getEventsFromJSON(getContext());
-                Log.i(LOG_TAG, "List size: " + eventList);
-//                mRecyclerView = getActivity().findViewById(R.id.rv_event_list);
-//                mAdapter = new EventListAdapter(getContext(), EventListFragment.this);
-//                mAdapter.setEvents(eventList);
-//                RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
-//                mRecyclerView.setLayoutManager(layoutManager);
-//                mRecyclerView.setAdapter(mAdapter);
-            }
-        });
 
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
@@ -107,20 +107,14 @@ public class EventListFragment extends Fragment implements EventListAdapter.Even
             @Override
             public void onSwiped(final RecyclerView.ViewHolder viewHolder, int swipeDir) {
                 // swipe to delete
-                int position = viewHolder.getAdapterPosition();
-                List<Event> events = mAdapter.getEvents();
-                Call<ResponseBody> call = service.deleteEvent(events.get(position).getId());
-                call.enqueue(new Callback<ResponseBody>() {
-                    @Override
-                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                        if(response.isSuccessful()) {
-                            Toast.makeText(getContext(), "Event was successfully deleted!", Toast.LENGTH_LONG);
-                        }
-                    }
 
+                EventTaskExecutors.getsInstance().networkIO().execute(new Runnable() {
                     @Override
-                    public void onFailure(Call<ResponseBody> call, Throwable t) {
-                        Toast.makeText(getContext(), "Something went wrong, unable to delete event", Toast.LENGTH_LONG);
+                    public void run() {
+                        int position = viewHolder.getAdapterPosition();
+                        List<Event> events = mAdapter.getEvents();
+                        deleteEvent(events, position);
+                        // mRepo.deleteEvent(events.get(position).getId());
                     }
                 });
 
@@ -135,15 +129,60 @@ public class EventListFragment extends Fragment implements EventListAdapter.Even
             }
         });
 
+        retrieveEvents();
+
         return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+    }
+
+
+    private void retrieveEvents() {
+        EventListViewModel viewModel = ViewModelProviders.of(this).get(EventListViewModel.class);
+        viewModel.getEvents().observe(this, new Observer<List<Event>>() {
+            @Override
+            public void onChanged(@Nullable List<Event> events) {
+                Log.d(LOG_TAG, "Receiving database update from LiveData in ViewModel");
+                Log.d(LOG_TAG, "List size: " + events.size());
+                mEmptyText.setVisibility(View.GONE);
+                mAdapter.setEvents(events);
+                mRecyclerView.setAdapter(mAdapter);
+            }
+        });
+    }
+
+
+    private void deleteEvent(List<Event> events, int position) {
+
+        final EventsApiService service = RetrofitClientInstance.getRetrofitInstance().create(EventsApiService.class);
+        Call<ResponseBody> call = service.deleteEvent(events.get(position).getId());
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if(response.isSuccessful()) {
+                    Toast.makeText(getContext(), "Event was successfully deleted!", Toast.LENGTH_LONG);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(getContext(), "Something went wrong, unable to delete event", Toast.LENGTH_LONG);
+            }
+        });
     }
 
     @Override
     public void onClick(Event event) {
         Intent intent = new Intent(getContext(), AddEventActivity.class);
-        intent.putExtra(AddEventActivity.EXTRA_TASK_ID, event.getId());
+        intent.putExtra(AddEventActivity.EXTRA_EVENT_ID, event.getId());
         startActivity(intent);
 
     }
+
+
 }
 

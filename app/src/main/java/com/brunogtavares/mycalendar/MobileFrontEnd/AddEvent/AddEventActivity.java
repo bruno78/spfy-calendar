@@ -3,10 +3,13 @@ package com.brunogtavares.mycalendar.MobileFrontEnd.AddEvent;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -18,6 +21,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.brunogtavares.mycalendar.R;
+import com.brunogtavares.mycalendar.backend.EventTaskExecutors;
 import com.brunogtavares.mycalendar.backend.models.Event;
 import com.brunogtavares.mycalendar.backend.EventsApiService;
 import com.brunogtavares.mycalendar.backend.RetrofitClientInstance;
@@ -40,8 +44,13 @@ import retrofit2.Response;
 public class AddEventActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = AddEventActivity.class.getSimpleName();
-    public static final String EXTRA_TASK_ID = "EVENT";
+    // Extra for the event ID to be received in the intent
+    public static final String EXTRA_EVENT_ID = "EVENT";
+    // Extra for the event ID to be received after rotation
+    public static final String INSTANCE_EVENT_ID = "instanceEventId";
+    // Mock user
     private final int USERID = 1;
+
 
     private static final int DEFAULT_TASK_ID = -1;
     private int mEventId = DEFAULT_TASK_ID;
@@ -55,7 +64,7 @@ public class AddEventActivity extends AppCompatActivity {
     static final int START_TIME_DIALOG_ID = 1;
     static final int END_TIME_DIALOG_ID = 2;
 
-    private EditText mEvent;
+    private EditText mEventTextView;
     private TextView mStartDate;
     private TextView mStartTime;
     private TextView mEndDate;
@@ -80,7 +89,7 @@ public class AddEventActivity extends AppCompatActivity {
 
         mAPIService = RetrofitClientInstance.getRetrofitInstance().create(EventsApiService.class);
 
-        mEvent = (EditText) findViewById(R.id.et_event_description);
+        mEventTextView = (EditText) findViewById(R.id.et_event_description);
         mStartDate = (TextView) findViewById(R.id.tv_start_date);
         mStartTime = (TextView) findViewById(R.id.tv_start_time);
         mEndDate = (TextView) findViewById(R.id.tv_end_date);
@@ -94,60 +103,26 @@ public class AddEventActivity extends AppCompatActivity {
         mCalendarEndTime = Calendar.getInstance();
 
 
-        // Updating event
+        // Updating an event
         Intent intent = getIntent();
-        if (intent != null && intent.hasExtra(EXTRA_TASK_ID)) {
+        if (intent != null && intent.hasExtra(EXTRA_EVENT_ID)) {
             mSaveButton.setText(R.string.update_button);
             if (mEventId == DEFAULT_TASK_ID) {
                 // populate the UI
-                mEventId = intent.getIntExtra(EXTRA_TASK_ID, DEFAULT_TASK_ID);
+                mEventId = intent.getIntExtra(EXTRA_EVENT_ID, DEFAULT_TASK_ID);
 
-
-                Call<Event> call = mAPIService.getEventById(mEventId);
-                call.enqueue(new Callback<Event>() {
+                mAPIService = RetrofitClientInstance.getRetrofitInstance().create(EventsApiService.class);
+                AddEventViewModelFactory factory = new AddEventViewModelFactory(mEventId);
+                final AddEventViewModel viewModel =
+                        ViewModelProviders.of(this, factory).get(AddEventViewModel.class);
+                viewModel.getEvent().observe(this, new Observer<Event>() {
                     @Override
-                    public void onResponse(Call<Event> call, Response<Event> response) {
-                        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT, Locale.US);
-                        SimpleDateFormat sdfTime = new SimpleDateFormat(TIME_FORMAT, Locale.US);
-                        SimpleDateFormat sdfFullTime = new SimpleDateFormat(FULL_DATE_FORMAT, Locale.US);
+                    public void onChanged(@Nullable Event event) {
+                        viewModel.getEvent().removeObserver(this);
 
-                        Event event = response.body();
-
-                        try {
-                            Date dateStart = sdfFullTime.parse(event.getStartTime());
-                            String startDateString = sdf.format(dateStart);
-                            String startTimeString = sdfTime.format(dateStart);
-
-                            Date dateEnd = sdfFullTime.parse(event.getEndtime());
-                            String endDateString = sdf.format(dateEnd);
-                            String endTimeString = sdfTime.format(dateEnd);
-
-                            mStartDate.setText(startDateString);
-                            mStartTime.setText(startTimeString);
-
-                            mEndDate.setText(endDateString);
-                            mEndTime.setText(endTimeString);
-
-                            mCalendarStartDate.setTime(sdf.parse(startDateString));
-                            mCalendarStartTime.setTime(sdfTime.parse(startTimeString));
-
-                            mCalendarEndDate.setTime(sdf.parse(endDateString));
-                            mCalendarEndTime.setTime(sdfTime.parse(endTimeString));
-
-                            mEvent.setText(event.getEvent());
-
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-
-                    @Override
-                    public void onFailure(Call<Event> call, Throwable t) {
-
+                        populateUI(event);
                     }
                 });
-
             }
         }
 
@@ -200,43 +175,49 @@ public class AddEventActivity extends AppCompatActivity {
         mSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Event event;
 
-                String eventDescription = mEvent.getText().toString();
+                String eventDescription = mEventTextView.getText().toString();
                 String startDate = mStartDate.getText().toString();
                 String startTime = mStartTime.getText().toString();
                 String endDate = mStartDate.getText().toString();
                 String endTime = mEndTime.getText().toString();
-                String startEvent = startDate + " " + startTime;
-                String endEvent = endDate + " " + endTime;
-                String startEvent2 = completeDate(startDate, startTime);
-                String endEvent2 = completeDate(endDate, endTime);
+                String startEvent = completeDate(startDate, startTime);
+                String endEvent = completeDate(endDate, endTime);
 
-                event = new Event(eventDescription, startEvent2, endEvent2, USERID);
+                final Event event = new Event(eventDescription, startEvent, endEvent, USERID);
 
                 Log.d(LOG_TAG, " " + eventDescription + "\n"
                         + startEvent + "\n"
-                        + endDate + "\n"
-                        + startTime + "\n"
-                        + endTime + "\n");
+                        + endDate);
 
-                if(mEvent.getText().toString().isEmpty()) {
+                if(mEventTextView.getText().toString().isEmpty()) {
                     Toast.makeText(AddEventActivity.this, "Event field cannot be blank", Toast.LENGTH_SHORT);
 
                 }
                 else {
-                    if(mEventId == DEFAULT_TASK_ID) {
-                        saveEvent(event);
-                    }
-                    else {
-                        updateEvent((long) mEventId, event);
-                    }
+                    EventTaskExecutors.getsInstance().networkIO().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(mEventId == DEFAULT_TASK_ID) {
+                                saveEvent(event);
+                            }
+                            else {
+                                updateEvent((long) mEventId, event);
+                            }
 
+                        }
+                    });
                 }
                 finish();
             }
         });
 
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putInt(INSTANCE_EVENT_ID, mEventId);
+        super.onSaveInstanceState(outState);
     }
 
     private void updateEvent(Long id, Event event) {
@@ -382,5 +363,39 @@ public class AddEventActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private void populateUI(Event event) {
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT, Locale.US);
+        SimpleDateFormat sdfTime = new SimpleDateFormat(TIME_FORMAT, Locale.US);
+        SimpleDateFormat sdfFullTime = new SimpleDateFormat(FULL_DATE_FORMAT, Locale.US);
+
+
+        try {
+            Date dateStart = sdfFullTime.parse(event.getStartTime());
+            String startDateString = sdf.format(dateStart);
+            String startTimeString = sdfTime.format(dateStart);
+
+            Date dateEnd = sdfFullTime.parse(event.getEndtime());
+            String endDateString = sdf.format(dateEnd);
+            String endTimeString = sdfTime.format(dateEnd);
+
+            mStartDate.setText(startDateString);
+            mStartTime.setText(startTimeString);
+
+            mEndDate.setText(endDateString);
+            mEndTime.setText(endTimeString);
+
+            mCalendarStartDate.setTime(sdf.parse(startDateString));
+            mCalendarStartTime.setTime(sdfTime.parse(startTimeString));
+
+            mCalendarEndDate.setTime(sdf.parse(endDateString));
+            mCalendarEndTime.setTime(sdfTime.parse(endTimeString));
+
+            mEventTextView.setText(event.getEvent());
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 }
