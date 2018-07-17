@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
+import com.brunogtavares.mycalendar.MobileFrontEnd.EventList.EventListFragment;
 import com.brunogtavares.mycalendar.R;
 
 /**

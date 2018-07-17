@@ -10,7 +10,7 @@
     android:padding="16dp"
     tools:context="com.brunogtavares.mycalendar.MobileFrontEnd.MainActivity">
 
-    <com.brunogtavares.mycalendar.MobileFrontEnd.CalendarView
+    <com.brunogtavares.mycalendar.MobileFrontEnd.CustomCalendar.CalendarView
         xmlns:calendarNS="http://schemas.android.com/apk/res/com.brunogtavares.spfycalendar"
         android:id="@+id/calendar_view"
         android:layout_width="match_parent"

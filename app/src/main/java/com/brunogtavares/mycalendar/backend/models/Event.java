@@ -1,4 +1,6 @@
-package com.brunogtavares.mycalendar.backend;
+package com.brunogtavares.mycalendar.backend.models;
+
+import android.arch.persistence.room.Entity;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -10,7 +12,7 @@ import com.google.gson.annotations.SerializedName;
 public class Event {
     @SerializedName("id")
     private int id;
-    @SerializedName("event")
+    @SerializedName("eventDescription")
     private String event;
     @SerializedName("startTime")
     private String startTime;

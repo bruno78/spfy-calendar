@@ -10,7 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RetrofitClientInstance {
 
     private static Retrofit retrofit;
-    private static final String BASE_URL = "http://localhost:3000/";
+    private static final String BASE_URL = "https://ancient-thicket-28097.herokuapp.com";
 
     public static Retrofit getRetrofitInstance() {
         if (retrofit == null) {
@@ -21,8 +21,5 @@ public class RetrofitClientInstance {
         }
         return retrofit;
     }
-
-
-
 
 }

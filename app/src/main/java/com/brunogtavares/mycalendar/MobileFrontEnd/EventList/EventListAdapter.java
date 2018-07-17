@@ -1,4 +1,4 @@
-package com.brunogtavares.mycalendar.MobileFrontEnd;
+package com.brunogtavares.mycalendar.MobileFrontEnd.EventList;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -8,21 +8,20 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.brunogtavares.mycalendar.R;
-import com.brunogtavares.mycalendar.backend.Event;
+import com.brunogtavares.mycalendar.backend.models.Event;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
  * Created by brunogtavares on 6/28/18.
  */
 
-public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHolder> {
+public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.EventViewHolder> {
 
-    private static final String LOG_TAG = EventAdapter.class.getSimpleName();
+    private static final String LOG_TAG = EventListAdapter.class.getSimpleName();
 
     final private EventAdapterOnClickHandler mClickHandler;
-    private final List<Event> mEvents;
+    private List<Event> mEvents;
     private Context mContext;
 
     public interface EventAdapterOnClickHandler {
@@ -30,9 +29,8 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     }
 
 
-    public EventAdapter(Context context, List<Event> events, EventAdapterOnClickHandler listener) {
+    public EventListAdapter(Context context, EventAdapterOnClickHandler listener) {
         this.mContext = context;
-        this.mEvents = events;
         mClickHandler = listener;
     }
 
@@ -65,7 +63,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     }
 
     @Override
-    public EventAdapter.EventViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public EventListAdapter.EventViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
 
@@ -102,6 +100,9 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
 
     public List<Event> getEvents() {
         return mEvents;
+    }
+    public void setEvents(List<Event> events) {
+        this.mEvents = events;
     }
 
 }

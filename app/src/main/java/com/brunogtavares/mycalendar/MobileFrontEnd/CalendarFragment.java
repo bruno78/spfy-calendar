@@ -9,6 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.brunogtavares.mycalendar.MobileFrontEnd.AddEvent.AddEventActivity;
+import com.brunogtavares.mycalendar.MobileFrontEnd.CustomCalendar.CalendarView;
 import com.brunogtavares.mycalendar.R;
 
 import java.text.DateFormat;
@@ -20,7 +22,7 @@ import java.util.HashSet;
  * Created by brunogtavares on 6/22/18.
  */
 
-public class CalendarFragment extends Fragment {
+public class    CalendarFragment extends Fragment {
 
     private FloatingActionButton mFab;
 
@@ -38,6 +40,7 @@ public class CalendarFragment extends Fragment {
         cv.updateCalendar(events);
 
         // assign event handler
+        // When user press and hold it takes to add an activity
         cv.setEventHandler(new CalendarView.EventHandler()
         {
             @Override
@@ -46,6 +49,11 @@ public class CalendarFragment extends Fragment {
                 // show returned day
                 DateFormat df = SimpleDateFormat.getDateInstance();
                 Toast.makeText(getActivity(), df.format(date), Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent(getContext(), AddEventActivity.class);
+                String dateString = df.format(date);
+                intent.putExtra("date", dateString);
+                startActivity(intent);
             }
         });
 

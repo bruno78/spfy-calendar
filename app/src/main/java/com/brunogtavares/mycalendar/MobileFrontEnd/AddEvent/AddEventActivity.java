@@ -1,18 +1,13 @@
-package com.brunogtavares.mycalendar.MobileFrontEnd;
+package com.brunogtavares.mycalendar.MobileFrontEnd.AddEvent;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -23,17 +18,17 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.brunogtavares.mycalendar.R;
-import com.brunogtavares.mycalendar.backend.Event;
-import com.brunogtavares.mycalendar.backend.EventDataService;
+import com.brunogtavares.mycalendar.backend.models.Event;
+import com.brunogtavares.mycalendar.backend.EventsApiService;
 import com.brunogtavares.mycalendar.backend.RetrofitClientInstance;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -54,6 +49,7 @@ public class AddEventActivity extends AppCompatActivity {
     // default date format
     private static final String DATE_FORMAT = "MMM dd, yyyy";
     private static final String TIME_FORMAT = "HH:mm";
+    private static final String FULL_DATE_FORMAT = "E MMM dd HH:mm:ss Z yyyy";
 
     static final int START_DATE_DIALOG_ID = 0;
     static final int START_TIME_DIALOG_ID = 1;
@@ -75,14 +71,14 @@ public class AddEventActivity extends AppCompatActivity {
     private TextView mActiveDateDisplay;
     private Calendar mActiveDate;
 
-    private EventDataService mAPIService;
+    private EventsApiService mAPIService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_event);
 
-        mAPIService = RetrofitClientInstance.getRetrofitInstance().create(EventDataService.class);
+        mAPIService = RetrofitClientInstance.getRetrofitInstance().create(EventsApiService.class);
 
         mEvent = (EditText) findViewById(R.id.et_event_description);
         mStartDate = (TextView) findViewById(R.id.tv_start_date);
@@ -96,6 +92,78 @@ public class AddEventActivity extends AppCompatActivity {
         mCalendarStartTime = Calendar.getInstance();
         mCalendarEndDate = Calendar.getInstance();
         mCalendarEndTime = Calendar.getInstance();
+
+
+        // Updating event
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra(EXTRA_TASK_ID)) {
+            mSaveButton.setText(R.string.update_button);
+            if (mEventId == DEFAULT_TASK_ID) {
+                // populate the UI
+                mEventId = intent.getIntExtra(EXTRA_TASK_ID, DEFAULT_TASK_ID);
+
+
+                Call<Event> call = mAPIService.getEventById(mEventId);
+                call.enqueue(new Callback<Event>() {
+                    @Override
+                    public void onResponse(Call<Event> call, Response<Event> response) {
+                        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT, Locale.US);
+                        SimpleDateFormat sdfTime = new SimpleDateFormat(TIME_FORMAT, Locale.US);
+                        SimpleDateFormat sdfFullTime = new SimpleDateFormat(FULL_DATE_FORMAT, Locale.US);
+
+                        Event event = response.body();
+
+                        try {
+                            Date dateStart = sdfFullTime.parse(event.getStartTime());
+                            String startDateString = sdf.format(dateStart);
+                            String startTimeString = sdfTime.format(dateStart);
+
+                            Date dateEnd = sdfFullTime.parse(event.getEndtime());
+                            String endDateString = sdf.format(dateEnd);
+                            String endTimeString = sdfTime.format(dateEnd);
+
+                            mStartDate.setText(startDateString);
+                            mStartTime.setText(startTimeString);
+
+                            mEndDate.setText(endDateString);
+                            mEndTime.setText(endTimeString);
+
+                            mCalendarStartDate.setTime(sdf.parse(startDateString));
+                            mCalendarStartTime.setTime(sdfTime.parse(startTimeString));
+
+                            mCalendarEndDate.setTime(sdf.parse(endDateString));
+                            mCalendarEndTime.setTime(sdfTime.parse(endTimeString));
+
+                            mEvent.setText(event.getEvent());
+
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<Event> call, Throwable t) {
+
+                    }
+                });
+
+            }
+        }
+
+        // Getting intent from the calendar
+        String dateExtra = intent.getStringExtra("date");
+        if(dateExtra != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT, Locale.US);
+            try {
+                mCalendarStartDate.setTime(sdf.parse(dateExtra));
+                mCalendarEndDate.setTime(sdf.parse(dateExtra));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+
+
 
         mStartDate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -124,14 +192,6 @@ public class AddEventActivity extends AppCompatActivity {
         updateDateDisplay(mEndDate, mCalendarStartDate);
         updateTimeDisplay(mEndTime, mCalendarEndTime);
 
-        Intent intent = getIntent();
-        if (intent != null && intent.hasExtra(EXTRA_TASK_ID)) {
-            mSaveButton.setText(R.string.update_button);
-            if (mEventId == DEFAULT_TASK_ID) {
-                // populate the UI
-                mEventId = intent.getIntExtra(EXTRA_TASK_ID, DEFAULT_TASK_ID);
-            }
-        }
 
         // TODO: Implement SAVE BUTTON,
         // Check for
@@ -149,10 +209,10 @@ public class AddEventActivity extends AppCompatActivity {
                 String endTime = mEndTime.getText().toString();
                 String startEvent = startDate + " " + startTime;
                 String endEvent = endDate + " " + endTime;
-                // Date startEvent = parseStringToDate(startDate, startTime);
-                // Date endEvent = parseStringToDate(endDate, endtime);
+                String startEvent2 = completeDate(startDate, startTime);
+                String endEvent2 = completeDate(endDate, endTime);
 
-                event = new Event(eventDescription, startEvent, endEvent, USERID);
+                event = new Event(eventDescription, startEvent2, endEvent2, USERID);
 
                 Log.d(LOG_TAG, " " + eventDescription + "\n"
                         + startEvent + "\n"
@@ -165,28 +225,47 @@ public class AddEventActivity extends AppCompatActivity {
 
                 }
                 else {
-                    sendPost(event);
+                    if(mEventId == DEFAULT_TASK_ID) {
+                        saveEvent(event);
+                    }
+                    else {
+                        updateEvent((long) mEventId, event);
+                    }
+
                 }
-
-
+                finish();
             }
         });
 
     }
 
-    private void sendPost(Event event) {
-        Call<Event> call = mAPIService.addEvent(event);
-        call.enqueue(new Callback<Event>() {
+    private void updateEvent(Long id, Event event) {
+
+        Call<ResponseBody> call = mAPIService.updateEvent(id, event);
+        call.enqueue(new Callback<ResponseBody>() {
             @Override
-            public void onResponse(Call<Event> call, Response<Event> response) {
-                if(response.isSuccessful()) {
-                    Log.i(LOG_TAG, "post submitted to API." + response.body().toString());
-                }
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                // TODO
             }
 
             @Override
-            public void onFailure(Call<Event> call, Throwable t) {
-                Log.e(LOG_TAG, "Unable to submit post to API.");
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                // TODO
+            }
+        });
+    }
+
+    private void saveEvent(Event event) {
+        Call<ResponseBody> call = mAPIService.addEvent(event);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                // TODO
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                // TODO
             }
         });
     }
@@ -287,7 +366,7 @@ public class AddEventActivity extends AppCompatActivity {
         return format.format(calendar.getTime());
     }
 
-    private static Date parseStringToDate(String eventDate, String evenTime) {
+    private static String completeDate(String eventDate, String evenTime) {
 
         String dateTime = eventDate + " " + evenTime;
 
@@ -295,8 +374,9 @@ public class AddEventActivity extends AppCompatActivity {
 
         try {
             SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.US);
+            SimpleDateFormat fullFormat = new SimpleDateFormat(FULL_DATE_FORMAT, Locale.US);
             Date date = sdf.parse(dateTime);
-            return date;
+            return fullFormat.format(date);
         } catch (ParseException e) {
             Log.e(LOG_TAG, "Error parsing date: " + e);
             e.printStackTrace();

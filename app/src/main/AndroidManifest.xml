@@ -19,7 +19,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MobileFrontEnd.AddEventActivity" />
+        <activity android:name=".MobileFrontEnd.AddEvent.AddEventActivity" />
     </application>
 
 </manifest>

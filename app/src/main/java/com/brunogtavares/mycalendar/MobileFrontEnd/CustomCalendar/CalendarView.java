@@ -1,4 +1,4 @@
-package com.brunogtavares.mycalendar.MobileFrontEnd;
+package com.brunogtavares.mycalendar.MobileFrontEnd.CustomCalendar;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -144,6 +144,8 @@ public class CalendarView extends LinearLayout {
                 if (eventHandler == null)
                     return false;
 
+                Date day = (Date) view.getItemAtPosition(position);
+
                 eventHandler.onDayLongPress((Date)view.getItemAtPosition(position));
                 return true;
             }
@@ -222,6 +224,7 @@ public class CalendarView extends LinearLayout {
 
             // if this day has an event, specify event image
             // view.setBackgroundResource(0);
+            // TODO: Set the event days here
             if (eventDays != null && !eventDays.isEmpty())
             {
                 for (Date eventDate : eventDays)
@@ -276,4 +279,6 @@ public class CalendarView extends LinearLayout {
     {
         void onDayLongPress(Date date);
     }
+
+
 }
