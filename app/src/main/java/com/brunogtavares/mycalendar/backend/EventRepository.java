@@ -49,7 +49,7 @@ public class EventRepository {
 
             @Override
             public void onFailure(Call<List<Event>> call, Throwable t) {
-                // TODO
+                eventList.setValue(null);
             }
         });
 

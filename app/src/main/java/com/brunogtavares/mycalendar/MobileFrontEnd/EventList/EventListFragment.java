@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.brunogtavares.mycalendar.MobileFrontEnd.AddEvent.AddEventActivity;
+import com.brunogtavares.mycalendar.MobileFrontEnd.ViewLifecycleFragment;
 import com.brunogtavares.mycalendar.R;
 import com.brunogtavares.mycalendar.backend.EventRepository;
 import com.brunogtavares.mycalendar.backend.EventTaskExecutors;
@@ -37,7 +38,7 @@ import retrofit2.Response;
  * Created by brunogtavares on 6/22/18.
  */
 
-public class EventListFragment extends Fragment implements EventListAdapter.EventAdapterOnClickHandler{
+public class EventListFragment extends ViewLifecycleFragment implements EventListAdapter.EventAdapterOnClickHandler{
 
     private static final String LOG_TAG = EventListFragment.class.getSimpleName();
     private EventListAdapter mAdapter;
@@ -59,7 +60,6 @@ public class EventListFragment extends Fragment implements EventListAdapter.Even
         mAdapter = new EventListAdapter(getContext(), EventListFragment.this);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(layoutManager);
-        mAdapter.setEvents(new ArrayList<Event>());
         mRecyclerView.setAdapter(mAdapter);
 
         mFab = (FloatingActionButton) rootView.findViewById(R.id.fab_add_event_btn);
@@ -85,17 +85,27 @@ public class EventListFragment extends Fragment implements EventListAdapter.Even
 //            @Override
 //            public void onFailure(Call<List<Event>> call, Throwable t) {
 //                Toast.makeText(getContext(), "Something went wrong...Please try later!", Toast.LENGTH_SHORT).show();
-//                List<Event> eventList = EventDBUtils.getEventsFromJSON(getContext());
-//                Log.i(LOG_TAG, "List size: " + eventList);
-////                mRecyclerView = getActivity().findViewById(R.id.rv_event_list);
-////                mAdapter = new EventListAdapter(getContext(), EventListFragment.this);
-////                mAdapter.setEvents(eventList);
-////                RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
-////                mRecyclerView.setLayoutManager(layoutManager);
-////                mRecyclerView.setAdapter(mAdapter);
 //            }
 //        });
 
+
+        mFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getContext(), AddEventActivity.class);
+                startActivity(intent);
+            }
+        });
+
+
+        return rootView;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        setupViewModel();
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             @Override
@@ -113,46 +123,31 @@ public class EventListFragment extends Fragment implements EventListAdapter.Even
                     public void run() {
                         int position = viewHolder.getAdapterPosition();
                         List<Event> events = mAdapter.getEvents();
-                        deleteEvent(events, position);
-                        // mRepo.deleteEvent(events.get(position).getId());
+                        //deleteEvent(events, position);
+                        mRepo.deleteEvent(events.get(position).getId());
+
                     }
                 });
 
             }
         }).attachToRecyclerView(mRecyclerView);
-
-        mFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getContext(), AddEventActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        retrieveEvents();
-
-        return rootView;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
     }
 
 
-    private void retrieveEvents() {
+    private void setupViewModel() {
         EventListViewModel viewModel = ViewModelProviders.of(this).get(EventListViewModel.class);
-        viewModel.getEvents().observe(this, new Observer<List<Event>>() {
+        final Observer<List<Event>> eventsObserver = new Observer<List<Event>>() {
             @Override
             public void onChanged(@Nullable List<Event> events) {
                 Log.d(LOG_TAG, "Receiving database update from LiveData in ViewModel");
-                Log.d(LOG_TAG, "List size: " + events.size());
-                mEmptyText.setVisibility(View.GONE);
-                mAdapter.setEvents(events);
-                mRecyclerView.setAdapter(mAdapter);
+                if( events != null) {
+                    mEmptyText.setVisibility(View.GONE);
+                    mAdapter.setEvents(events);
+                    mRecyclerView.setAdapter(mAdapter);
+                }
             }
-        });
+        };
+        viewModel.getEvents().observe(this, eventsObserver);
     }
 
 
