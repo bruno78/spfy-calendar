@@ -168,10 +168,10 @@ public class AddEventActivity extends AppCompatActivity {
         updateTimeDisplay(mEndTime, mCalendarEndTime);
 
 
-        // TODO: Implement SAVE BUTTON,
+        // DONE: Implement SAVE BUTTON,
         // Check for
-        // 1. end date < start date
-        // 2. null or empty description
+        // TODO: 1. end date < start date
+        // TODO: 2. null or empty description
         mSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

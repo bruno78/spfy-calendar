@@ -12,17 +12,28 @@ import android.widget.Toast;
 import com.brunogtavares.mycalendar.MobileFrontEnd.AddEvent.AddEventActivity;
 import com.brunogtavares.mycalendar.MobileFrontEnd.CustomCalendar.CalendarView;
 import com.brunogtavares.mycalendar.R;
+import com.brunogtavares.mycalendar.backend.EventsApiService;
+import com.brunogtavares.mycalendar.backend.models.Event;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by brunogtavares on 6/22/18.
  */
 
 public class    CalendarFragment extends Fragment {
+
+    private static final String FULL_DATE_FORMAT = "E MMM dd HH:mm:ss Z yyyy";
 
     private FloatingActionButton mFab;
 
@@ -68,7 +79,4 @@ public class    CalendarFragment extends Fragment {
         return rootView;
 
     }
-
-
-
 }

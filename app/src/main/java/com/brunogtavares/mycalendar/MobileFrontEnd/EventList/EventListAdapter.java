@@ -37,12 +37,13 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
 
     public class EventViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        private TextView mEventWeek, mEventDay, mEventDescription,
+        private TextView mEventMonth, mEventWeek, mEventDay, mEventDescription,
                 mEventStartTime, mEventEndTime;
 
         public EventViewHolder(View itemView) {
             super(itemView);
 
+            mEventMonth = (TextView) itemView.findViewById(R.id.tv_event_month);
             mEventWeek = (TextView) itemView.findViewById(R.id.tv_event_week);
             mEventDay = (TextView) itemView.findViewById(R.id.tv_event_day);
             mEventDescription = (TextView) itemView.findViewById(R.id.tv_event_description);
@@ -83,6 +84,8 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
 
         String week = date[0];
         view.mEventWeek.setText(week);
+        String month = date[1] + " " + date[5];
+        view.mEventMonth.setText(month);
         String day = date[2];
         view.mEventDay.setText(day);
         view.mEventDescription.setText(event.getEvent());
